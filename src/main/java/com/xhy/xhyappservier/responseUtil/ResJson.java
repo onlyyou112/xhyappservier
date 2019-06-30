@@ -8,25 +8,50 @@ package com.xhy.xhyappservier.responseUtil;
  **/
 
 
-public class ResJson<E> {
+public class ResJson<E,V> {
     private String  status= "success";
-    public E data;
+    public E pageList;
+    public E nowList;
+    public V data;
 
     public ResJson() {
 
     }
-    public ResJson(E data){this.data=data; }
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public String getStatus(){return status; }
-    public E getData() {
+    public V getData() {
         return data;
     }
 
-    public void setData(E data) {
+    public ResJson setData(V data) {
         this.data = data;
+        return this;
+    }
+
+    public ResJson(E pageList, E nowList){this.pageList=pageList;this.nowList=nowList; }
+
+    public ResJson setStatus(String status) {
+        this.status = status;
+        return this;
+    }
+
+
+    public String getStatus(){return status; }
+
+    public E getPageList() {
+        return pageList;
+    }
+
+    public ResJson setPageList(E pageList) {
+        this.pageList = pageList;
+        return this;
+    }
+
+    public E getNowList() {
+        return nowList;
+    }
+
+    public ResJson setNowList(E nowList) {
+        this.nowList = nowList;
+        return this;
     }
 }

@@ -21,7 +21,6 @@ public class MyAop {
     public Object addAdivce(ProceedingJoinPoint joinPoint){
         System.out.println("注解。。。");
         ResJson resJson=new ResJson();
-        resJson.setData("how are you?");
         return resJson;
     }
 }

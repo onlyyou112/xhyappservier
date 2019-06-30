@@ -1,7 +1,9 @@
 package com.xhy.xhyappservier.interfaceController;
 
+import com.xhy.xhyappservier.responseUtil.GetCacheLocalUrl;
 import com.xhy.xhyappservier.responseUtil.MyAnnotain;
 import com.xhy.xhyappservier.responseUtil.ResJson;
+import com.xhy.xhyappservier.service.GetUrlService;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -12,9 +14,11 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -33,82 +37,30 @@ import java.util.List;
 @RequestMapping("/getvideoData")
 @CacheConfig(cacheNames = "urlcache")
 public class GetVideoUriController {
+    @Autowired
+private GetUrlService getUrlService;
     @RequestMapping("/all")
-    @Cacheable(key = "listvideo")
- public ResJson<List> getVideoUri(String url){
-        List<HashMap<String,String>> videoList= new ArrayList<>(40);
-        String result =getResult(url);
+    @Deprecated
+ public ResJson<List,String> getVideoUri(String url){
+        String result =getUrlService.getResult(url);
         if(StringUtils.isEmpty(result)){
-
             return null;
         }
         Document parse = Jsoup.parse(result);
         Elements elementsByClass =  parse.getElementsByClass("list-videos");
         System.out.println("得到的个数为"+elementsByClass.size());
         Element element = elementsByClass.get(1);
-        Elements items = element.getElementsByClass("item");
-        for (Element item:items) {
-            //以下获取到的是单个a标签，a标签的属性是视频页面链接，
-            // 里面有时长，观看次数，上传时间等
-            Element aele = item.getElementsByTag("a").get(0);
-            String title = aele.attr("title");
-            String href = aele.attr("href");
-            String imgPath = aele.getElementsByTag("img").get(0).attr("data-original");
-           String duration =aele.getElementsByClass("duration").get(0).text();
-           String addTime=aele.getElementsByClass("added").get(0).getElementsByTag("em")
-                   .get(0).text();
-           String viewscount =aele.getElementsByClass("views").get(0).text();
-           StringBuffer buffer=new StringBuffer();
-            HashMap<String,String> videoMap=new HashMap<>();
-            videoMap.put("title",title);
-            videoMap.put("videourl",href);
-            videoMap.put("picuri",imgPath);
-            videoMap.put("duration",duration);
-            videoMap.put("viewscount",viewscount);
-            videoMap.put("addTime",addTime);
-           videoList.add(videoMap);
-        }
-
-        return new ResJson<List>(videoList);
+        List<HashMap<String, String>> itemsList = getItems(element);
+        return new ResJson<List,String>(itemsList,null);
     }
 
-    public String getResult(String url ){
-        String result = "";
 
-        // 创建httpclient对象
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-
-        // 创建get方式请求对象
-        HttpGet httpGet = new HttpGet(url);
-        httpGet.addHeader("Content-type", "application/json");
-        // 通过请求对象获取响应对象
-        CloseableHttpResponse response=null;
-        try{
-            response = httpClient.execute(httpGet);
-
-            // 获取结果实体
-            // 判断网络连接状态码是否正常(0--200都数正常)
-            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                result = EntityUtils.toString(response.getEntity(), "utf-8");
-            }}catch(Exception e){
-            e.printStackTrace();
-            return null;
-        }finally{
-            try {
-                if(response!=null){response.close();}
-            }catch(Exception e1){
-                e1.printStackTrace();
-            }
-        }
-        // 释放链接
-        return result;
-    }
     @RequestMapping("/getvideo")
     @Cacheable(key = "#videourl")
-    public ResJson<String> getRealVideoUrl(String videourl){
-        String result = getResult(videourl);
+    public ResJson<List,String> getRealVideoUrl(String videourl){
+        String result = getUrlService.getResult(videourl);
         if(StringUtils.isEmpty(result)){
-            ResJson<String> objectResJson = new ResJson<>();
+            ResJson<List,String> objectResJson = new ResJson<>();
             objectResJson.setStatus("fail");
             return objectResJson;
         }
@@ -132,10 +84,53 @@ public class GetVideoUriController {
                 }
             }
         }
-
-        String response="http://2449.vod.myqcloud.com/2449_22ca37a6ea9011e5acaaf51d105342e3.f20.mp4";
-
-        return new ResJson<>(finalvideourl);
+        return new ResJson<List,String>().setData(finalvideourl);
     }
+    @RequestMapping("/page/{pageNum}")
+    @Cacheable(key = "'pagecache'+#pageNum")
+    public ResJson<List,String> pageGet(@PathVariable String pageNum){
+        String videoServerUrl = GetCacheLocalUrl.getLocalPropertiesUrl();
+        String result = getUrlService.getResult(videoServerUrl+"/?from=" + pageNum);
+        if(StringUtils.isEmpty(result)){
+        return new ResJson<List,String>().setStatus("fail");
+        }
+
+        Document parse = Jsoup.parse(result);
+        Element pageAll=parse.getElementById("list_videos_most_recent_videos_items");
+        Element nowWatch= parse.getElementById("list_videos_videos_watched_right_now_items");
+        List<HashMap<String, String>> pageList = getItems(pageAll);
+        List<HashMap<String, String>> nowWatchList = getItems(nowWatch);
+        ResJson<List,String> resJson=new ResJson<>(pageList,nowWatchList);
+        return resJson;
+
+    }
+    public List<HashMap<String,String>> getItems(Element element){
+        List<HashMap<String,String>> videoList=new ArrayList<>();
+
+        Elements items = element.getElementsByClass("item");
+        for (Element item:items) {
+            //以下获取到的是单个a标签，a标签的属性是视频页面链接，
+            // 里面有时长，观看次数，上传时间等
+            Element aele = item.getElementsByTag("a").get(0);
+            String title = aele.attr("title");
+            String href = aele.attr("href");
+            String imgPath = aele.getElementsByTag("img").get(0).attr("data-original");
+            String duration =aele.getElementsByClass("duration").get(0).text();
+            String addTime=aele.getElementsByClass("added").get(0).getElementsByTag("em")
+                    .get(0).text();
+            String viewscount =aele.getElementsByClass("views").get(0).text();
+            StringBuffer buffer=new StringBuffer();
+            HashMap<String,String> videoMap=new HashMap<>();
+            videoMap.put("title",title);
+            videoMap.put("videourl",href);
+            videoMap.put("picuri",imgPath);
+            videoMap.put("duration",duration);
+            videoMap.put("viewscount",viewscount);
+            videoMap.put("addTime",addTime);
+            videoList.add(videoMap);
+        }
+        return videoList;
+    }
+
 
 }
