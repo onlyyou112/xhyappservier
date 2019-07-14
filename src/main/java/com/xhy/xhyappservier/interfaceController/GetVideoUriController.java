@@ -3,6 +3,7 @@ package com.xhy.xhyappservier.interfaceController;
 import com.xhy.xhyappservier.responseUtil.GetCacheLocalUrl;
 import com.xhy.xhyappservier.responseUtil.MyAnnotain;
 import com.xhy.xhyappservier.responseUtil.ResJson;
+import com.xhy.xhyappservier.service.CleanService;
 import com.xhy.xhyappservier.service.GetUrlService;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -17,6 +18,7 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,8 +39,15 @@ import java.util.List;
 @RequestMapping("/getvideoData")
 @CacheConfig(cacheNames = "urlcache")
 public class GetVideoUriController {
+
     @Autowired
 private GetUrlService getUrlService;
+    @Autowired
+    private CleanService cleanService;
+    @Autowired
+    private GetCacheLocalUrl getCacheLocalUrl;
+
+
     @RequestMapping("/all")
     @Deprecated
  public ResJson<List,String> getVideoUri(String url){
@@ -56,7 +65,7 @@ private GetUrlService getUrlService;
 
 
     @RequestMapping("/getvideo")
-    @Cacheable(key = "#videourl")
+    @Cacheable(key = "#videourl",unless = "#result.status eq 'fail'")
     public ResJson<List,String> getRealVideoUrl(String videourl){
         String result = getUrlService.getResult(videourl);
         if(StringUtils.isEmpty(result)){
@@ -87,12 +96,13 @@ private GetUrlService getUrlService;
         return new ResJson<List,String>().setData(finalvideourl);
     }
     @RequestMapping("/page/{pageNum}")
-    @Cacheable(key = "'pagecache'+#pageNum")
+    @Cacheable(key = "'pagecache'+#pageNum",unless = "#result== null || #result.nowList.size()==0")
     public ResJson<List,String> pageGet(@PathVariable String pageNum){
-        String videoServerUrl = GetCacheLocalUrl.getLocalPropertiesUrl();
+        String videoServerUrl = getCacheLocalUrl.getUrl();
         String result = getUrlService.getResult(videoServerUrl+"/?from=" + pageNum);
         if(StringUtils.isEmpty(result)){
-        return new ResJson<List,String>().setStatus("fail");
+            getUrlService.getUrl();
+        return null;
         }
 
         Document parse = Jsoup.parse(result);
@@ -130,6 +140,10 @@ private GetUrlService getUrlService;
             videoList.add(videoMap);
         }
         return videoList;
+    }
+   @RequestMapping("/test")
+    public void test(){
+    getUrlService.getUrl();
     }
 
 

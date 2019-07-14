@@ -12,14 +12,14 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @EnableWebMvc
 @EnableScheduling
 @EnableCaching
-public class XhyappservierApplication extends SpringBootServletInitializer {
+public class XhyappservierApplication /*extends SpringBootServletInitializer*/ {
 
     public static void main(String[] args) {
         SpringApplication.run(XhyappservierApplication.class, args);
     }
 
-    @Override
+    /*@Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
         return builder.sources(XhyappservierApplication.class);
-    }
+    }*/
 }

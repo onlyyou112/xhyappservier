@@ -9,6 +9,6 @@ package com.xhy.xhyappservier.service;
 
 
 public interface GetUrlService {
-   public String  getUrl();
+   public void  getUrl();
    public String getResult(String url);
 }
