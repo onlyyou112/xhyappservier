@@ -1,4 +1,4 @@
-package com.xhy.xhyappservier.responseUtil;
+package com.xhy.xhyappservier.util;
 
 /**
  * @program: xhyappservier

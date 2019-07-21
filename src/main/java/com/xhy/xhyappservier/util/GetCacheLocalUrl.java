@@ -1,12 +1,9 @@
-package com.xhy.xhyappservier.responseUtil;
+package com.xhy.xhyappservier.util;
 
 import com.xhy.xhyappservier.entries.PropertiesName;
 import com.xhy.xhyappservier.service.GetUrlService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.ResourceEditor;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;

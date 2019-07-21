@@ -1,7 +1,7 @@
 package com.xhy.xhyappservier.service.serviceimpl;
 
 import com.xhy.xhyappservier.entries.PropertiesName;
-import com.xhy.xhyappservier.responseUtil.GetCacheLocalUrl;
+import com.xhy.xhyappservier.util.GetCacheLocalUrl;
 import com.xhy.xhyappservier.service.GetUrlService;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;

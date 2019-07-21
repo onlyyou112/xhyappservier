@@ -1,16 +1,9 @@
 package com.xhy.xhyappservier.interfaceController;
 
-import com.xhy.xhyappservier.responseUtil.GetCacheLocalUrl;
-import com.xhy.xhyappservier.responseUtil.MyAnnotain;
-import com.xhy.xhyappservier.responseUtil.ResJson;
+import com.xhy.xhyappservier.util.GetCacheLocalUrl;
+import com.xhy.xhyappservier.util.ResJson;
 import com.xhy.xhyappservier.service.CleanService;
 import com.xhy.xhyappservier.service.GetUrlService;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -18,7 +11,6 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -65,7 +57,7 @@ private GetUrlService getUrlService;
 
 
     @RequestMapping("/getvideo")
-    @Cacheable(key = "#videourl",unless = "#result.status eq 'fail'")
+    @Cacheable(key = "#videourl",unless = "#result.status eq \"fail\"")
     public ResJson<List,String> getRealVideoUrl(String videourl){
         String result = getUrlService.getResult(videourl);
         if(StringUtils.isEmpty(result)){
