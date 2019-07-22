@@ -1,11 +1,13 @@
 package com.xhy.xhyappservier.service.serviceimpl;
 
+import com.xhy.xhyappservier.encrypt.EncryptUtill;
 import com.xhy.xhyappservier.entries.User;
 import com.xhy.xhyappservier.mapping.UserMapper;
 import com.xhy.xhyappservier.util.ResJson;
 import com.xhy.xhyappservier.service.UserService;
 import com.xhy.xhyappservier.util.UUIDUtil;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -29,12 +31,22 @@ public class UserServiceImpl implements UserService {
             resJson.setStatus("fail");
             resJson.setData("对不起，当前用户名已存在");
         }
-        user.setId(UUIDUtil.getUUID());
-        int i = userMapper.addUser(user);
-        if(i>0){
+        try {
+            user.setId(UUIDUtil.getUUID());
+            if(StringUtils.isEmpty(user.getPassWord())){
+         throw new Exception("密码为空");
+            }
+            user.setPassWord(EncryptUtill.encrypt(user.getPassWord()));
+        }catch(Exception e){
+            resJson.setStatus("FAIL");
+            resJson.setData("密码格式不正确！");
             return resJson;
         }
-        resJson.setStatus("FAIL");
+            int i = userMapper.addUser(user);
+            if (i > 0) {
+                return resJson;
+            }
+            resJson.setStatus("FAIL");
             return resJson;
 
     }

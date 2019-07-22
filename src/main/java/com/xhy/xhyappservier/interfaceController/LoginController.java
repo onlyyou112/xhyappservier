@@ -1,5 +1,6 @@
 package com.xhy.xhyappservier.interfaceController;
 
+import com.xhy.xhyappservier.encrypt.EncryptUtill;
 import com.xhy.xhyappservier.entries.User;
 import com.xhy.xhyappservier.util.ResJson;
 import com.xhy.xhyappservier.service.UserService;
@@ -25,8 +26,30 @@ public class LoginController {
     UserService userService;
     @RequestMapping("clogin")
     @ResponseBody
-    public ResJson<List,String> login(String username,String password){
+    public ResJson<List,String> login(String userName,String passWord){
         ResJson<List, String> listStringResJson = new ResJson<>();
+        if(StringUtils.isEmpty(userName)){
+            listStringResJson.setStatus("FAIL");
+            listStringResJson.setData("用户名为空");
+            return listStringResJson;
+        }
+        if(StringUtils.isEmpty(passWord)){
+            listStringResJson.setStatus("FAIL");
+            listStringResJson.setData("密码为空");
+            return listStringResJson;
+        }
+
+        User user = userService.findUser(userName);
+        if(user==null){
+            listStringResJson.setStatus("FAIL");
+            listStringResJson.setData("用户名或密码错误");
+            return listStringResJson;
+        }
+        if((StringUtils.isEmpty(user.getPassWord()))|| !user.getPassWord().equals(EncryptUtill.encrypt(passWord))){
+            listStringResJson.setStatus("FAIL");
+            listStringResJson.setData("用户名或密码错误");
+            return listStringResJson;
+        }
         listStringResJson.setData("ok");
         return listStringResJson;
     }
