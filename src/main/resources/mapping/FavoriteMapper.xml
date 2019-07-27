@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xhy.xhyappservier.mapping.FavoriteMapper">
+<sql id="BaseSql">
+    id,video_name,video_url,create_time,duration,user_id
+</sql>
+    <resultMap id="BaseResultMap" type="com.xhy.xhyappservier.entries.FavoriteVideo">
+        <result column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="video_name" jdbcType="VARCHAR" property="videoName"/>
+        <result column="video_url" jdbcType="VARCHAR" property="videoUrl"/>
+        <result column="create_time" jdbcType="DATE" property="createTime"/>
+        <result column="duration" jdbcType="VARCHAR" property="duration"/>
+        <result column="user_id" jdbcType="VARCHAR" property="userId"/>
+    </resultMap>
+
+    <select id="findAllFavoriteVideo" resultMap="BaseResultMap"
+            parameterType="com.xhy.xhyappservier.entries.FavoriteVideo">
+        select *
+        from favorite
+        where user_id = #{userId}
+
+    </select>
+    <insert id="addFavorite" parameterType="com.xhy.xhyappservier.entries.FavoriteVideo">
+        insert into favorite (id, video_name, video_url,create_time,duration,user_id)
+        values (#{id}, #{videoName}, #{videoUrl},#{createTime},#{duration},#{userId})
+    </insert>
+    <select id="findVideo">
+        select
+        <include refid="BaseSql"/>
+        from  favorite
+        <where>
+            <if test="userId != null and userId != ''">
+              and   user_id=#{id,jdbcType=VARCHAR}
+            </if>
+         <if test="videoName != null and videoName != ''">
+            and video_name =#{videoName,jdbcType=VARCHAR}
+         </if>
+            <if test="videoUrl != null and videoUrl != ''">
+                and video_url= #{videoUrl,jdbcType=VARCHAR}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="id != null and id != ''">
+        and id = #{id,jdbcType=VARCHAR}
+            </if>
+            <if test="duration != null and duration != ''">
+                and duration = #{duration,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+    <delete id="deleteVideo" parameterType="string">
+    delete from favorite
+     where id = #{id,jdbcType=VARCHAR}
+
+    </delete>
+    <delete id="deleteAllFavorite" parameterType="string">
+        delete from favorite where user_id = #{userId,jdbcType=VARCHAR}
+    </delete>
+</mapper>
