@@ -13,15 +13,15 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @EnableWebMvc
 @EnableScheduling
 @EnableCaching
-@MapperScan(basePackages = {"com.xhy.xhyappservier.mapping"})
-public class XhyappservierApplication /*extends SpringBootServletInitializer*/ {
+/*@MapperScan(basePackages = {"com.xhy.xhyappservier.mapping"})*/
+public class XhyappservierApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
         SpringApplication.run(XhyappservierApplication.class, args);
     }
 
-    /*@Override
+    @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
         return builder.sources(XhyappservierApplication.class);
-    }*/
+    }
 }

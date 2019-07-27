@@ -4,6 +4,7 @@ package com.xhy.xhyappservier.encrypt;
 import org.apache.commons.codec.digest.Md5Crypt;
 import org.apache.tomcat.util.security.MD5Encoder;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -35,7 +36,8 @@ public class EncryptUtill {
 
     }
     public static void main(String args[]){
-        String new1292861831 = encrypt("new1292861831");
-        System.out.println(new1292861831);
+        /*String new1292861831 = encrypt("new1292861831");
+        System.out.println(new1292861831);*/
     }
+
 }

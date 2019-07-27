@@ -3,9 +3,9 @@
   <component name="WebServers">
     <option name="servers">
       <webServer id="24d33954-5ef4-48e0-9a61-e74f313c8a77" name="mlip123.iok.la" url="http://mlip123.iok.la">
-        <fileTransfer host="mlip123.iok.la" port="22" rootFolder="/apache-tomcat-8.5.11/apache-tomcat-8.5.11/webapps" accessType="SFTP">
+        <fileTransfer host="mlip123.iok.la" port="22" accessType="SFTP">
           <advancedOptions>
-            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" />
           </advancedOptions>
           <option name="port" value="22" />
         </fileTransfer>

@@ -5,7 +5,7 @@
       <paths name="mlip123.iok.la">
         <serverdata>
           <mappings>
-            <mapping deploy="/apache-tomcat-8.5.11/apache-tomcat-8.5.11/webapps" local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/" local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>
