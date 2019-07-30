@@ -57,7 +57,7 @@ public class LoginController {
     @ResponseBody
     public ResJson<List,String> register(User user){
         if((!StringUtils.isEmpty(user.getUserName()))&&(!StringUtils.isEmpty(user.getUserName()))){
-            ResJson<List, String> listStringResJson=  userService.addUser(user);
+            ResJson<List, String> listStringResJson = userService.addUser(user);
             return listStringResJson;
         }else{
             ResJson<List,String> resJson=new ResJson<>();

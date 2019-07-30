@@ -5,7 +5,7 @@ import com.xhy.xhyappservier.entries.FavoriteVideo;
 import java.util.List;
 
 public interface FavoriteMapper {
-    List<FavoriteVideo> findAllFavoriteVideo();
+    List<FavoriteVideo> findAllFavoriteVideo(String uid);
     int addFavorite(FavoriteVideo favoriteVideo);
     FavoriteVideo findVideo(FavoriteVideo favoriteVideo);
     int deleteVideo(String id);

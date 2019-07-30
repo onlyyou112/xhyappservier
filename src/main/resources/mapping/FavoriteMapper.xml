@@ -14,10 +14,10 @@
     </resultMap>
 
     <select id="findAllFavoriteVideo" resultMap="BaseResultMap"
-            parameterType="com.xhy.xhyappservier.entries.FavoriteVideo">
+            parameterType="string">
         select *
         from favorite
-        where user_id = #{userId}
+        where user_id = #{uid,jdbcType=VARCHAR}
 
     </select>
     <insert id="addFavorite" parameterType="com.xhy.xhyappservier.entries.FavoriteVideo">
