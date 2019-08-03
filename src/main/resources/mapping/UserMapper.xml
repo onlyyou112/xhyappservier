@@ -1,20 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.xhy.xhyappservier.mapping.UserMapper">
+<mapper namespace="com.xhy.xhyappserver.mapping.UserMapper">
 
-    <resultMap id="BaseResultMap" type="com.xhy.xhyappservier.entries.User">
+    <resultMap id="BaseResultMap" type="com.xhy.xhyappserver.entries.User">
         <result column="id" jdbcType="VARCHAR" property="id"/>
         <result column="userName" jdbcType="VARCHAR" property="userName"/>
         <result column="passWord" jdbcType="VARCHAR" property="passWord"/>
     </resultMap>
-
-    <select id="findUser" resultType="com.xhy.xhyappservier.entries.User"
-            parameterType="com.xhy.xhyappservier.entries.User">
-        select *
+<sql id="baseSql">
+    id,userName,passWord
+</sql>
+    <select id="findUser" resultType="com.xhy.xhyappserver.entries.User"
+            parameterType="com.xhy.xhyappserver.entries.User">
+        select
+        <include refid="baseSql"/>
         from user
         where userName = #{userName}
     </select>
-    <insert id="addUser" parameterType="com.xhy.xhyappservier.entries.User">
+    <insert id="addUser" parameterType="com.xhy.xhyappserver.entries.User">
         insert into user (id, userName, passWord)
         values (#{id}, #{userName}, #{passWord})
     </insert>

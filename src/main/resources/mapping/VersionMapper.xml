@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xhy.xhyappserver.mapping.VersionMapper">
+  <resultMap id="BaseResultMap" type="com.xhy.xhyappserver.entries.Version">
+    <!--@mbg.generated-->
+    <result column="id" jdbcType="VARCHAR" property="id" />
+    <result column="version_num" jdbcType="VARCHAR" property="versionNum" />
+    <result column="download_url" jdbcType="VARCHAR" property="downloadUrl" />
+    <result column="islatest" jdbcType="VARCHAR" property="islatest" />
+  </resultMap>
+  <sql id="baseSql">
+    id,version_num,download_url,islatest
+
+  </sql>
+  
+  <insert id="insert" parameterType="com.xhy.xhyappserver.entries.Version">
+    <!--@mbg.generated-->
+    insert into version (id, version_num, download_url, 
+      islatest)
+    values (#{id,jdbcType=VARCHAR}, #{versionNum,jdbcType=VARCHAR}, #{downloadUrl,jdbcType=VARCHAR}, 
+      #{islatest,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.xhy.xhyappserver.entries.Version">
+    <!--@mbg.generated-->
+    insert into version
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="versionNum != null">
+        version_num,
+      </if>
+      <if test="downloadUrl != null">
+        download_url,
+      </if>
+      <if test="islatest != null">
+        islatest,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="versionNum != null">
+        #{versionNum,jdbcType=VARCHAR},
+      </if>
+      <if test="downloadUrl != null">
+        #{downloadUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="islatest != null">
+        #{islatest,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+
+  <select id="selectLatest" resultMap="BaseResultMap">
+    select
+    <include refid="baseSql"/>
+    from version
+    where
+    islatest="1"
+  </select>
+<update id="updateVersion" parameterType="com.xhy.xhyappserver.entries.Version">
+  update version
+  <set>
+    <if test="downloadUrl != null and downloadUrl != ''">
+      download_url= #{downloadUrl,jdbcType=VARCHAR},
+    </if>
+   <if test="islatest != null and islatest != ''">
+     islatest = #{islatest,jdbcType=VARCHAR},
+   </if>
+    <if test="versionNum != null and versionNum != ''">
+      version_num = #{versionNum,jdbcType=VARCHAR}
+    </if>
+  </set>
+
+
+</update>
+</mapper>
