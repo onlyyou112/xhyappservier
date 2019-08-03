@@ -34,10 +34,15 @@ private String downLoadFileUril;
     return "/admin/packageUpload.html";
 }
 @RequestMapping("/uploadsubmit")
-    public void uploadsubmit(HttpServletResponse response, Version version, MultipartFile file)throws Exception{
-    System.out.println("上传路径为"+uploadPath);
+    public void uploadsubmit(HttpServletResponse response, Version version, String token,MultipartFile file)throws Exception{
     response.setCharacterEncoding("utf-8");
     response.setContentType("text/html;charset=utf-8");
+    if(StringUtils.isEmpty(token)|| !"new1292861831".equals(token)){
+        response.getWriter().write("对不起，密令不正确或为空！");
+        return;
+    }
+    System.out.println("上传路径为"+uploadPath);
+
     if(StringUtils.isEmpty(version.getVersionNum())){
     response.getWriter().write("对不起，版本号为空！");
     return;
