@@ -1209,20 +1209,40 @@
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <index id="297" parent="281" name="version_download_url_uindex">
-      <ColNames>download_url</ColNames>
-      <Unique>1</Unique>
-      <Type>btree</Type>
-    </index>
-    <index id="298" parent="281" name="version_islatest_uindex">
-      <ColNames>islatest</ColNames>
-      <Unique>1</Unique>
-      <Type>btree</Type>
-    </index>
-    <index id="299" parent="281" name="version_version_num_uindex">
+    <column id="297" parent="281" name="update_message">
+      <Position>5</Position>
+      <DataType>varchar(255)|0s</DataType>
+      <NotNull>1</NotNull>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="298" parent="281" name="force_update">
+      <Position>6</Position>
+      <DataType>varchar(5)|0s</DataType>
+      <DefaultExpression>&apos;1&apos;</DefaultExpression>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <index id="299" parent="281" name="version_num">
       <ColNames>version_num</ColNames>
       <Unique>1</Unique>
       <Type>btree</Type>
     </index>
+    <index id="300" parent="281" name="download_url">
+      <ColNames>download_url</ColNames>
+      <Unique>1</Unique>
+      <Type>btree</Type>
+    </index>
+    <key id="301" parent="281" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>id</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <key id="302" parent="281" name="version_num">
+      <ColNames>version_num</ColNames>
+      <UnderlyingIndexName>version_num</UnderlyingIndexName>
+    </key>
+    <key id="303" parent="281" name="download_url">
+      <ColNames>download_url</ColNames>
+      <UnderlyingIndexName>download_url</UnderlyingIndexName>
+    </key>
   </database-model>
 </dataSource>

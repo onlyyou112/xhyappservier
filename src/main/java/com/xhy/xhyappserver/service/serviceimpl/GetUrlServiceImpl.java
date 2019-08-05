@@ -6,6 +6,7 @@ import com.xhy.xhyappserver.service.GetUrlService;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
@@ -32,6 +33,7 @@ public class GetUrlServiceImpl implements GetUrlService {
    private GetCacheLocalUrl getCacheLocalUrl;
     @Override
     /*获取url，放入properties文件中*/
+    //这段代码需要同步加锁，以后需要处理
     public void getUrl() {
         String result = getResult(getServerUrl);
         if(!StringUtil.isBlank(result)){
@@ -83,8 +85,9 @@ public class GetUrlServiceImpl implements GetUrlService {
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 result = EntityUtils.toString(response.getEntity(), "utf-8");
             }}catch(Exception e){
-            if(e instanceof UnknownHostException){
+            if(e instanceof UnknownHostException || e instanceof HttpHostConnectException){
                 //处理一下url异常
+                System.err.println("系统可能尚未初始化完成！");
                 getUrl();
                 //处理其他异常；
             }

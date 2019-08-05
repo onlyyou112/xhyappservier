@@ -7,18 +7,22 @@
     <result column="version_num" jdbcType="VARCHAR" property="versionNum" />
     <result column="download_url" jdbcType="VARCHAR" property="downloadUrl" />
     <result column="islatest" jdbcType="VARCHAR" property="islatest" />
+    <result column="update_message" jdbcType="VARCHAR" property="updateMessage"/>
+    <result column="force_update" jdbcType="VARCHAR" property="forceUpdate"/>
   </resultMap>
   <sql id="baseSql">
-    id,version_num,download_url,islatest
+    id,version_num,download_url,islatest,update_message,force_update
 
   </sql>
   
   <insert id="insert" parameterType="com.xhy.xhyappserver.entries.Version">
     <!--@mbg.generated-->
     insert into version (id, version_num, download_url, 
-      islatest)
+      islatest,update_message,force_update)
     values (#{id,jdbcType=VARCHAR}, #{versionNum,jdbcType=VARCHAR}, #{downloadUrl,jdbcType=VARCHAR}, 
-      #{islatest,jdbcType=VARCHAR})
+      #{islatest,jdbcType=VARCHAR},
+    ,#{updateMessage,jdbcType=VARCHAR},
+    #{forceUpdate,jdbcType=VARCHAR} )
   </insert>
   <insert id="insertSelective" parameterType="com.xhy.xhyappserver.entries.Version">
     <!--@mbg.generated-->
@@ -36,6 +40,9 @@
       <if test="islatest != null">
         islatest,
       </if>
+        <if test="updateMessage != null and updateMessage != ''">
+          update_message
+        </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -50,6 +57,12 @@
       <if test="islatest != null">
         #{islatest,jdbcType=VARCHAR},
       </if>
+        <if test="updateMessage != null and updateMessage != ''">
+          #{updateMessage,jdbcType=VARCHAR},
+        </if>
+          <if test="forceUpdate != null and forceUpdate != ''">
+            #{forceUpdate,jdbcType=VARCHAR}
+          </if>
     </trim>
   </insert>
 
@@ -70,7 +83,13 @@
      islatest = #{islatest,jdbcType=VARCHAR},
    </if>
     <if test="versionNum != null and versionNum != ''">
-      version_num = #{versionNum,jdbcType=VARCHAR}
+      version_num = #{versionNum,jdbcType=VARCHAR},
+    </if>
+    <if test="updateMessage != null and updateMessage != ''">
+      update_message = #{updateMessage,jdbcType=VARCHAR},
+    </if>
+    <if test="forceUpdate != null and forceUpdate != ''">
+      force_update= #{forceUpdate,jdbcType=VARCHAR}
     </if>
   </set>
 

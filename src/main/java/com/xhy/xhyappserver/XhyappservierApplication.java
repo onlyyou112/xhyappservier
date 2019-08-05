@@ -23,4 +23,5 @@ public class XhyappservierApplication extends SpringBootServletInitializer {
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
         return builder.sources(XhyappservierApplication.class);
     }
+
 }

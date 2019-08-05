@@ -1,9 +1,11 @@
 package com.xhy.xhyappserver.interfaceController;
 
+import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.xhy.xhyappserver.entries.Version;
 import com.xhy.xhyappserver.service.VersionService;
 import com.xhy.xhyappserver.util.Retjson;
 import com.xhy.xhyappserver.util.UUIDUtil;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -41,14 +43,30 @@ private String downLoadFileUril;
         response.getWriter().write("对不起，密令不正确或为空！");
         return;
     }
+
     System.out.println("上传路径为"+uploadPath);
 
     if(StringUtils.isEmpty(version.getVersionNum())){
     response.getWriter().write("对不起，版本号为空！");
     return;
     }
+    Map map = checkVersion(version.getVersionNum());
+    if(!(Boolean) map.get("compareResult")){
+        response.getWriter().write("对不起，版本不得低于或等于上次版本号，旧版本号为"+map.get("oldVersion"));
+        return;
+    }
+
+
     if(file==null){
         response.getWriter().write("对不起，文件为空！");
+        return;
+    }
+    if(StringUtils.isEmpty(version.getUpdateMessage())){
+        response.getWriter().write("对不起，升级信息必须填写！");
+        return;
+    }
+    if(StringUtils.isEmpty(version.getForceUpdate())){
+        response.getWriter().write("对不起，强制升级选项不能为空！");
         return;
     }
     long size = file.getSize();
@@ -89,7 +107,12 @@ private String downLoadFileUril;
     response.getWriter().write("<h1>上传成功！！</h1>");
 
 }
-@RequestMapping("/getUpdateFile")
+
+    private Map checkVersion(String versionNum) {
+        return versionService.checkVersion(versionNum);
+    }
+
+    @RequestMapping("/getUpdateFile")
     public void downFile(HttpServletResponse response)throws Exception{
     File file = new File(uploadPath + "update.apk");
     if(!file.exists()){
@@ -123,12 +146,17 @@ private String downLoadFileUril;
 }
 @RequestMapping("/updateInfo")
 @ResponseBody
-    public Map<String,String> updateInfo(){
+    public Version updateInfo(){
+Map<String,String> returnMap=new HashMap<>();
+
+
     Version latestVersion = versionService.getLatestVersion();
-    HashMap<String, String> returnMap = new HashMap<>();
-    returnMap.put("versionNum",latestVersion.getVersionNum());
+   /* returnMap.put("versionNum",latestVersion.getVersionNum());
     returnMap.put("downloadUrl",latestVersion.getDownloadUrl());
-    return returnMap;
+    returnMap.put("updateMessage",latestVersion.getUpdateMessage());
+    returnMap.put("forceUpdate",latestVersion.getIslatest());*/
+
+    return latestVersion;
 }
 
 

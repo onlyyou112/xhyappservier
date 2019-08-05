@@ -8,6 +8,24 @@ public class Version {
     private String downloadUrl;
 
     private String islatest;
+    private String updateMessage;
+    private String forceUpdate;
+
+    public String getForceUpdate() {
+        return forceUpdate;
+    }
+
+    public void setForceUpdate(String forceUpdate) {
+        this.forceUpdate = forceUpdate;
+    }
+
+    public String getUpdateMessage() {
+        return updateMessage;
+    }
+
+    public void setUpdateMessage(String updateMessage) {
+        this.updateMessage = updateMessage;
+    }
 
     public String getId() {
         return id;
