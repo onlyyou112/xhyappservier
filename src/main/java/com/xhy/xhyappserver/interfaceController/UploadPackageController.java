@@ -84,6 +84,7 @@ private String downLoadFileUril;
         if(!(uploadFile.length()==size)){
             response.getWriter().write("<h1>系统异常，上传失败，请稍后重试！</h1>");
             return;
+
         }
     }catch(Exception e){
     response.getWriter().write("<h1>系统异常，上传失败，请稍后重试！</h1>");

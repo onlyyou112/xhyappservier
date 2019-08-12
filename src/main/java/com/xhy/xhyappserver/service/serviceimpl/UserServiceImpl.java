@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -30,23 +31,27 @@ public class UserServiceImpl implements UserService {
         if(user1!=null){
             resJson.setStatus("fail");
             resJson.setData("对不起，当前用户名已存在");
-        }
-        try {
-            user.setId(UUIDUtil.getUUID());
-            if(StringUtils.isEmpty(user.getPassWord())){
-         throw new Exception("密码为空");
+        }else {
+            try {
+                if (StringUtils.isEmpty(user.getPassWord())) {
+                    throw new Exception("密码为空");
+                }
+                user.setId(UUIDUtil.getUUID());
+                user.setPassWord(EncryptUtill.encrypt(user.getPassWord()));
+                try {
+                    //注册用户
+                    int i = userMapper.addUser(user);
+                }catch(Exception e1){
+                    resJson.setStatus("fail");
+                    resJson.setData("注册失败，可能是系统故障！");
+                }
+            } catch (Exception e) {
+                resJson.setStatus("FAIL");
+                resJson.setData("密码格式不正确！");
             }
-            user.setPassWord(EncryptUtill.encrypt(user.getPassWord()));
-        }catch(Exception e){
-            resJson.setStatus("FAIL");
-            resJson.setData("密码格式不正确！");
-            return resJson;
+
         }
-            int i = userMapper.addUser(user);
-            if (i > 0) {
-                return resJson;
-            }
-            resJson.setStatus("FAIL");
+        //不出任何意外，就是成功，出现意外在上面已经进行操作，此处返回即可;
             return resJson;
 
     }
