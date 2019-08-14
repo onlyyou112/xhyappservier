@@ -3,12 +3,18 @@ package com.xhy.xhyappserver.service.serviceimpl;
 import com.xhy.xhyappserver.entries.PropertiesName;
 import com.xhy.xhyappserver.util.GetCacheLocalUrl;
 import com.xhy.xhyappserver.service.GetUrlService;
-import org.apache.http.HttpStatus;
+import org.apache.http.*;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.helper.StringUtil;
@@ -17,7 +23,9 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.InputStream;
 import java.net.UnknownHostException;
+import java.util.*;
 
 /**
  * @program: xhyappserver
@@ -104,6 +112,58 @@ public class GetUrlServiceImpl implements GetUrlService {
         return result;
     }
 
+    /**
+     *
+     * @param url 请求的url
+     * @param cookies 请求的cookie
+     * @param headers 请求头
+     * @param params  请求参数
+     * @return
+     */
+    @Override
+    public String postResult(String url, Map<String,String> cookies, Map<String,String> headers,Map<String,String> params){
+        try {
+        HttpPost httppost=new HttpPost(url); //建立HttpPost对象
+        if(params!=null&&params.size()>0) {
+            List<NameValuePair> paramsList=new ArrayList<NameValuePair>();
+            for (Map.Entry<String, String> param : params.entrySet()) {
+                paramsList.add(new BasicNameValuePair(param.getKey(),param.getValue()));
+            }
+            httppost.setEntity(new UrlEncodedFormEntity(paramsList, HTTP.UTF_8));
+        }
+        if(headers!=null&& headers.size()>0){
+            for(Map.Entry<String,String> header:headers.entrySet()){
+                httppost.addHeader(new BasicHeader(header.getKey(),header.getValue()));
+            }
+        }
+
+        if(cookies!=null&&cookies.size()>0){
+        StringBuffer cookiesStr=new StringBuffer();
+            for (Map.Entry<String,String> cookie:cookies.entrySet()) {
+                cookiesStr.append(cookie.getKey()+"="+cookie.getValue()+";");
+            }
+            httppost.addHeader(new BasicHeader("cookie",cookiesStr.toString()));
+        }
+
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+            HttpResponse response = httpClient.execute(httppost);
+            if(response.getStatusLine().getStatusCode()==200){
+                HttpEntity httpEntity = response.getEntity();
+                String content = EntityUtils.toString(httpEntity);
+                return content;
+            }else{
+                return "";
+            }
+
+
+
+        }catch (Exception e){
+            System.err.println("出现异常");
+            e.printStackTrace();
+            return "";
+        }
+//发送Post,并返回一个HttpResponse对象
+    }
 
 
 }

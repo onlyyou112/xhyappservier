@@ -1,7 +1,6 @@
 package com.xhy.xhyappserver.util;
 
 import com.xhy.xhyappserver.service.GetUrlService;
-import com.xhy.xhyappserver.service.serviceimpl.GetNewUrlServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;

@@ -1,5 +1,7 @@
 package com.xhy.xhyappserver.service;
 
+import java.util.Map;
+
 /**
  * @program: xhyappserver
  * @description:
@@ -10,5 +12,7 @@ package com.xhy.xhyappserver.service;
 
 public interface GetUrlService {
    public void  getUrl();
+
    public String getResult(String url);
+   String postResult(String url, Map<String,String> cookies, Map<String,String> headers, Map<String,String> params);
 }
