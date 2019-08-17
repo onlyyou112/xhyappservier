@@ -4,6 +4,7 @@ import com.xhy.xhyappserver.entries.PropertiesName;
 import com.xhy.xhyappserver.util.GetCacheLocalUrl;
 import com.xhy.xhyappserver.service.GetUrlService;
 import org.apache.http.*;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -76,12 +77,16 @@ public class GetUrlServiceImpl implements GetUrlService {
     @Override
     public String getResult(String url ){
         String result = "";
-
+        RequestConfig config = RequestConfig.custom().setSocketTimeout(5000)
+                .setConnectTimeout(5000)
+                .setConnectionRequestTimeout(5000)
+                .build();
         // 创建httpclient对象
         CloseableHttpClient httpClient = HttpClients.createDefault();
-
         // 创建get方式请求对象
         HttpGet httpGet = new HttpGet(url);
+        httpGet.setConfig(config);
+        httpGet.setHeader(new BasicHeader("user-agent","Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36"));
         httpGet.addHeader("Content-type", "application/json");
         // 通过请求对象获取响应对象
         CloseableHttpResponse response=null;
@@ -90,7 +95,7 @@ public class GetUrlServiceImpl implements GetUrlService {
 
             // 获取结果实体
             // 判断网络连接状态码是否正常(0--200都数正常)
-            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 result = EntityUtils.toString(response.getEntity(), "utf-8");
             }}catch(Exception e){
             if(e instanceof UnknownHostException || e instanceof HttpHostConnectException){
@@ -109,6 +114,19 @@ public class GetUrlServiceImpl implements GetUrlService {
             }
         }
         // 释放链接
+        if(httpClient!=null){
+            try{
+                httpClient.close();
+                if(response!=null){
+                    response.close();
+                }
+
+            }catch (Exception e){
+                  e.printStackTrace();
+            }
+
+        }
+
         return result;
     }
 
@@ -123,7 +141,12 @@ public class GetUrlServiceImpl implements GetUrlService {
     @Override
     public String postResult(String url, Map<String,String> cookies, Map<String,String> headers,Map<String,String> params){
         try {
+            RequestConfig config = RequestConfig.custom().setSocketTimeout(5000)
+                    .setConnectTimeout(5000)
+                    .setConnectionRequestTimeout(5000)
+                    .build();
         HttpPost httppost=new HttpPost(url); //建立HttpPost对象
+            httppost.setConfig(config);
         if(params!=null&&params.size()>0) {
             List<NameValuePair> paramsList=new ArrayList<NameValuePair>();
             for (Map.Entry<String, String> param : params.entrySet()) {

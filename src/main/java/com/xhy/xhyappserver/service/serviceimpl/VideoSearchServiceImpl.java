@@ -1,5 +1,7 @@
 package com.xhy.xhyappserver.service.serviceimpl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.xhy.xhyappserver.service.GetUrlService;
 import com.xhy.xhyappserver.service.VideoSearchService;
 import com.xhy.xhyappserver.util.ResJson;
@@ -39,12 +41,13 @@ public class VideoSearchServiceImpl implements VideoSearchService {
         Document parse = Jsoup.parse(contentStr);
         Element content = parse.getElementById("content");
         Elements elementsByClass = content.getElementsByClass("video-pic");
-        List<HashMap<String,String>> videoList=new ArrayList<>();
+        List<HashMap<String,Object>> videoList=new ArrayList<>();
         for (Element ele :elementsByClass) {
-            HashMap<String,String> videoMap=new HashMap<>();
+            HashMap<String,Object> videoMap=new HashMap<>();
             String title = ele.attr("title");
             String imgPath = ele.attr("data-original");
             String href = ele.attr("href");
+           /* String videopageContent = getUrlService.postResult("https://www.qsptv.com" + href, null, header, null);*/
             videoMap.put("title",title);
             videoMap.put("videourl",href);
             videoMap.put("picuri",imgPath);
@@ -58,5 +61,60 @@ public class VideoSearchServiceImpl implements VideoSearchService {
         return new ResJson<List,String>().setPageList(videoList);
 
 
+    }
+
+    @Override
+    public HashMap<String, HashMap<String, String>> getVideoList(String videoHref) {
+        String videopageContent= getUrlService.getResult("https://www.qsptv.com" + videoHref);
+        Document parse1 = Jsoup.parse(videopageContent);
+        //全部播放列表，.playlist>.clearfix是播放列表的集合
+        Elements playlists = parse1.select(".playlist>.clearfix");
+        //播放源的集合
+        HashMap<String,HashMap<String,String>> sourceMap=new HashMap<>();
+        int i=1;
+        for (Element source:playlists) {
+            //每个播放源包含的播放剧集map
+            HashMap<String,String> playMap=new HashMap<>();
+            //source是每个播放源的列表集合，里面包含的每个a标签都是一个视频
+            Elements aeles = source.select("a");
+            for (Element videoTag:aeles) {
+                String hrefs = videoTag.attr("href");
+                String text = videoTag.text();
+                //视频的剧集号
+                playMap.put(text,hrefs);
+            }
+            //添加播放源
+            sourceMap.put("播放源"+i,playMap);
+            //需要递增，表示下一个播放源
+            i++;
+        }
+        return sourceMap;
+    }
+
+    /**
+     * 获取视频播放页面链接
+     * @param videoHref
+     * @return
+     */
+    @Override
+    public String getVideoPlayUrl(String videoHref) {
+        String result = getUrlService.getResult("https://www.qsptv.com" +videoHref);
+        Document parse = Jsoup.parse(result);
+        Elements scriptParent = parse.select("#zanpiancms_player>.embed-responsive");
+        Elements script = scriptParent.select("script");
+        Element element = script.get(0);
+        String scriptText = element.childNode(0).attr("data");
+        System.out.println(scriptText);
+        String json_str = scriptText.substring(24, scriptText.length()-1);
+        JSONObject parse1 = (JSONObject) JSON.parse(json_str);
+        String apiurl = (String)parse1.get("apiurl");
+        if((!StringUtils.isEmpty(apiurl))&&apiurl.startsWith("//")){
+            apiurl="https:"+apiurl;
+        }
+
+
+        String url = (String)parse1.get("url");
+        url=apiurl+url;
+        return url;
     }
 }
