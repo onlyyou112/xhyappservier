@@ -21,7 +21,7 @@
       islatest,update_message,force_update)
     values (#{id,jdbcType=VARCHAR}, #{versionNum,jdbcType=VARCHAR}, #{downloadUrl,jdbcType=VARCHAR}, 
       #{islatest,jdbcType=VARCHAR},
-    ,#{updateMessage,jdbcType=VARCHAR},
+    #{updateMessage,jdbcType=VARCHAR},
     #{forceUpdate,jdbcType=VARCHAR} )
   </insert>
   <insert id="insertSelective" parameterType="com.xhy.xhyappserver.entries.Version">
