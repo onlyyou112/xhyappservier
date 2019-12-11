@@ -12,12 +12,10 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 /**
  * @program: xhyappservier
  * @description: 搜索服务
@@ -31,14 +29,27 @@ public class VideoSearchServiceImpl implements VideoSearchService {
     GetUrlService getUrlService;
     @Override
     public ResJson<List, String> searchVideo(String word, Integer page) {
+        int countNumber=0;
         Map<String,String> header=new HashMap<>();
         header.put("user-agent","Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36");
         header.put("x-requested-with","XMLHttpRequest");
-        String contentStr = getUrlService.postResult("https://www.qsptv.com/index.php?s=search-index-wd-"+word+"-sid-1-p-"+page, null, header,null);
+        String contentStr=getUrlService.postResult("http://www.qsptv.net/index.php?s=search-index-wd-"+word+"-sid-1-p-"+page,null,header,null);
         if(StringUtils.isEmpty(contentStr)){
             return new ResJson<List,String>().setStatus("fail").setData("对不起，服务器数据处理失败，稍后再试，如多次错误，请尽快通知管理员处理。");
         }
         Document parse = Jsoup.parse(contentStr);
+        Element count = parse.getElementById("count");
+        String span = count.getElementsByTag("span").get(0).text();
+        if(!StringUtils.isEmpty(span)){
+            span=span.replaceAll("“","").replaceAll("”","");
+            try {
+                countNumber = Integer.parseInt(span);
+            }catch(Exception e){
+                e.printStackTrace();
+                countNumber=999;
+            }
+
+        }
         Element content = parse.getElementById("content");
         Elements elementsByClass = content.getElementsByClass("video-pic");
         List<HashMap<String,Object>> videoList=new ArrayList<>();
@@ -56,19 +67,24 @@ public class VideoSearchServiceImpl implements VideoSearchService {
             videoMap.put("addTime","后续提供");
             videoList.add(videoMap);
             System.out.println(title+href+imgPath);
-            videoList.add(videoMap);
         }
-        return new ResJson<List,String>().setPageList(videoList);
+        return new ResJson<List,String>().setPageList(videoList).setCount(countNumber);
 
 
     }
 
+    /**
+     * 获取视频的所有剧集
+     * @param videoHref
+     * @return
+     */
     @Override
     public HashMap<String, HashMap<String, String>> getVideoList(String videoHref) {
         String videopageContent= getUrlService.getResult("https://www.qsptv.com" + videoHref);
         Document parse1 = Jsoup.parse(videopageContent);
         //全部播放列表，.playlist>.clearfix是播放列表的集合
         Elements playlists = parse1.select(".playlist>.clearfix");
+
         //播放源的集合
         HashMap<String,HashMap<String,String>> sourceMap=new HashMap<>();
         int i=1;
