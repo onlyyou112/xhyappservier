@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xhy.xhyappserver.mapping.TelplayMapper">
+    <sql id="BaseSql">
+        id
+        ,
+        video_name,
+        video_url,
+        create_time,
+        duration,
+        user_id
+    </sql>
+    <resultMap id="BaseResultMap" type="com.xhy.xhyappserver.entries.MovieEntry">
+        <result column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="pic_href" jdbcType="VARCHAR" property="picHref"/>
+        <result column="movie_detail_href" jdbcType="VARCHAR" property="movieDetailHref"/>
+        <result column="title" jdbcType="DATE" property="title"/>
+        <result column="note" jdbcType="VARCHAR" property="note"/>
+        <result column="actor_person" jdbcType="VARCHAR" property="actorPerson"/>
+        <result column="scope" jdbcType="VARCHAR" property="scope"/>
+        <collection property="moviePlayListEntries" javaType="java.util.List"
+                    ofType="com.xhy.xhyappserver.entries.MoviePlayListEntry">
+            <result column="mid" property="id"/>
+            <result column="movie_id" property="movieId"/>
+            <result column="telplay_title" property="title"/>
+            <result column="movie_play_url" property="movieDetailHref"/>
+            <result column="video_source" property="videoSource"/>
+        </collection>
+
+    </resultMap>
+    <sql id="movie_key">
+        t
+        .
+        id
+        ,
+        t
+        .
+        pic_href,
+        t
+        .
+        movie_detail_href,
+        t
+        .
+        title,
+        t
+        .
+        note,
+        t
+        .
+        actor_person,
+        t
+        .
+        scope
+    </sql>
+    <sql id="movie_list">
+        mv
+        .
+        id mid
+        ,
+        mv
+        .
+        movie_detail_href movie_play_url,
+        mv
+        .
+        movie_id,
+        mv
+        .
+        video_source,
+        mv
+        .
+        title telplay_title
+    </sql>
+    <select id="selectWithPage" resultMap="BaseResultMap">
+        select
+         <include refid="movie_key"/>
+         ,
+               <include refid="movie_list"/>
+         from ( select *
+                        from telplay
+                                 limit 1,3 ) t
+                          left join movie_playlist mv
+                                    on mv
+                                           .
+                                           movie_id =
+                                       t
+                                           .
+                                           id;
+    </select>
+</mapper>

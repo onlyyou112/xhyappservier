@@ -1,30 +1,183 @@
 <!DOCTYPE html>
-<html lang="ch" xmlns:th="http://www.thymeleaf.org">
+<html xml:lang="ch"xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>小黄鸭后台管理系统</title>
+    <link rel="stylesheet" th:href="@{/static/layui/css/layui.css}">
 </head>
-<body>
-<h1>安装包上传</h1>
-<form th:action="${#request.getContextPath()+'/uploadsubmit'}" method="post" enctype="multipart/form-data">
-    <div>
-        版本号：<input type="text" name="versionNum"/>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <div class="layui-logo">小黄鸭后台管理系统</div>
+        <!-- 头部区域（可配合layui已有的水平导航） -->
+        <ul class="layui-nav layui-layout-left">
+            <li class="layui-nav-item"><a href="">控制台</a></li>
+            <li class="layui-nav-item"><a href="">商品管理</a></li>
+            <li class="layui-nav-item"><a href="">用户</a></li>
+            <li class="layui-nav-item">
+                <a href="javascript:;">其它系统</a>
+                <dl class="layui-nav-child">
+                    <dd><a href="">邮件管理</a></dd>
+                    <dd><a href="">消息管理</a></dd>
+                    <dd><a href="">授权管理</a></dd>
+                </dl>
+            </li>
+        </ul>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a href="javascript:;">
+                    <img src="http://t.cn/RCzsdCq" class="layui-nav-img">
+                    小黄鸭
+                </a>
+                <dl class="layui-nav-child">
+                    <dd><a href="">基本资料</a></dd>
+                    <dd><a href="">安全设置</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item"><a href="">退了</a></li>
+        </ul>
     </div>
-    文件：<input type="file" name="file"/>
-    <div>
-        密令：<input type="password" name="token"/>
-    </div>
-   <div>
-       升级说明：<textarea type="" name="updateMessage"></textarea>
-   </div>
-    <div>
-  是否强制升级：
-    <input type="radio" name="forceUpdate" value="1"/> 是&nbsp;&nbsp;
-    <input type="radio" name="forceUpdate" value="0"/> 否&nbsp;&nbsp;
-    </div>
-            <input type="submit" value="提交"/>
 
-</form>
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree"  lay-filter="test">
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a class="" href="javascript:;">应用管理</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="javascript:;">列表一</a></dd>
+                        <dd><a href="javascript:;">列表二</a></dd>
+                        <dd><a href="javascript:;">列表三</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="javascript:;">用户管理</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="javascript:;">列表一</a></dd>
+                        <dd><a href="javascript:;">列表二</a></dd>
+                        <dd><a href="">超链接</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item"><a href="">管理</a></li>
+            </ul>
+        </div>
+    </div>
 
+    <div class="layui-body">
+        <!-- 内容主体区域 -->
+        <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+            <legend>安装包上传</legend>
+        </fieldset>
+        <form  class="layui-form" action="" method="post" enctype="multipart/form-data">
+            <div class="layui-form-item">
+                <label class="layui-form-label">版本号：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="versionNum" th:value="${version.versionNum}"  class="layui-input"/>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label"> 文件：</label>
+                <div class="layui-input-block">
+                    <input type="file" name="file" id="file"  class="layui-upload-button"/>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">  密令：</label>
+                <div  class="layui-input-block">
+                    <input type="password" name="token"  class="layui-input"/>
+                </div>
+            </div>
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">升级说明：</label>
+                <div class="layui-input-block">
+                    <textarea type="" name="updateMessage" id="message" style="display: none;" th:text="${version.updateMessage}"></textarea>
+                </div>
+            </div>
+            <div  class="layui-form-item">
+                <label class="layui-form-label">是否强制升级：</label>
+                <div  class="layui-input-block">
+                    <input type="radio" name="forceUpdate" value="1" th:checked="${version.forceUpdate eq '1'}"/> 是&nbsp;&nbsp;
+                    <input type="radio" name="forceUpdate" value="0" th:checked="${version.forceUpdate eq '0'}"/> 否&nbsp;&nbsp;
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+            <input type="submit"  class="layui-btn" value="提交" lay-submit lay-filter="formsubmit" />
+                </div>
+            </div>
+
+        </form>
+
+    </div>
+
+    <div class="layui-footer">
+        <!-- 底部固定区域 -->
+        ©xhy
+    </div>
+</div>
+<script th:src="@{/static/layui/layui.js}"></script>
+<script>
+    layui.use(['element','form','layer','layedit'], function(){
+        var url=[[${#request.getContextPath()}]]"/uploadsubmit";
+        var layedit = layui.layedit;
+        layedit.build('message');
+        var element = layui.element;
+        var form=layui.form;
+        var $=layui.$;
+        var layer=layui.layer;
+        form.on('submit(formsubmit)', function(data){
+            var file= document.getElementById("file");
+            if(file.value==null||file.value==""){
+                layer.msg("未选择文件");
+                return false;
+            }else {
+              /*  $.post(
+                    url,
+                    $(data.field),
+                    function (retjson) {
+                        if (retjson.status == "success") {
+                            layer.msg(retjson.msg, {time: 1500}, function () {
+                            });
+                        } else {
+                            layer.msg(retjson.msg, {time: 1500, anim: 6});
+                        }
+                    }
+                );*/
+                var formData = new FormData();
+                formData.append('file', $('#file')[0].files[0]);
+                formData.append('versionNum',$('input[name="versionNum"]').val());
+                formData.append("token",$('input[name="token"]').val());
+                formData.append("updateMessage",$('textarea[name="updateMessage"]').val());
+                formData.append("forceUpdate",$('input[name="forceUpdate"]:checked').val());
+                $.ajax({
+                    url:url,
+                    method:'post',
+                    data:formData,
+                    contentType: false,
+                    /**
+                     * 必须false才会避开jQuery对 formdata 的默认处理
+                     * XMLHttpRequest会对 formdata 进行正确的处理
+                     */
+                    processData: false,
+                    success:function(res){
+                        if(res.status= "success"){
+                            layer.msg(res.msg, {time: 1500}, function () {
+                            });
+                        }
+                        else
+                            layer.msg(res.msg, {time: 1500, anim: 6});
+                    },
+                    error:function (data) {
+                        layer.msg("访问出错！", {time: 1500, anim: 6});
+                    }
+                }) ;         
+
+            }
+            return false;
+        });
+    });
+
+</script>
 </body>
 </html>

@@ -1,5 +1,7 @@
 package com.xhy.xhyappserver.util;
 
+import java.util.List;
+
 /**
  * @program: xhyappserver
  * @description:
@@ -13,10 +15,12 @@ public class ResJson<E,V> {
     public E pageList;
     public E nowList;
     public V data;
+
     /**
      * 该变量用于存储统计视频的数量
      */
     public int count;
+    public int countPage;
 
     public int getCount() {
         return count;
@@ -65,6 +69,11 @@ public class ResJson<E,V> {
 
     public ResJson setNowList(E nowList) {
         this.nowList = nowList;
+        return this;
+    }
+
+    public ResJson setCountPage(int countPage) {
+        this.countPage=countPage;
         return this;
     }
 }

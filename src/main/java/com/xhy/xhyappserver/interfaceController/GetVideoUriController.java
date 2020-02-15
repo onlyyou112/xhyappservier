@@ -124,7 +124,7 @@ private GetUrlService getUrlService;
         ResJson<List,String> resJson=new ResJson<>(pageList,nowWatchList);
         return resJson;
 
-    }
+}
     public List<HashMap<String,String>> getItems(Element element){
         List<HashMap<String,String>> videoList=new ArrayList<>();
 

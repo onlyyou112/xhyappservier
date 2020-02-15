@@ -3,6 +3,7 @@ package com.xhy.xhyappserver.interfaceController;
 import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.xhy.xhyappserver.entries.Version;
 import com.xhy.xhyappserver.service.VersionService;
+import com.xhy.xhyappserver.util.ResourcePathUtil;
 import com.xhy.xhyappserver.util.Retjson;
 import com.xhy.xhyappserver.util.UUIDUtil;
 import org.springframework.beans.BeanUtils;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLEncoder;
@@ -25,70 +27,75 @@ import java.util.Map;
 @RequestMapping("/")
 public class UploadPackageController {
 
-@Value("${windows_path}")
-private String uploadPath;
+@Autowired
+    ResourcePathUtil resourcePathUtil;
 @Value("${downloadUpdateUrl}")
 private String downLoadFileUril;
+
 @Autowired
     VersionService versionService;
 @RequestMapping(value = {"/","/packageUpload",""})
-    public String index(){
+    public String index(HttpServletRequest request){
+    Version latestVersion = versionService.getLatestVersion();
+    if(latestVersion==null){
+        latestVersion=new Version();
+        latestVersion.setVersionNum("0.0.0");
+    }
+    request.setAttribute("version",latestVersion);
     return "/admin/packageUpload.html";
 }
 @RequestMapping("/uploadsubmit")
-    public void uploadsubmit(HttpServletResponse response, Version version, String token,MultipartFile file)throws Exception{
+@ResponseBody
+    public Retjson uploadsubmit(HttpServletResponse response, Version version, String token,MultipartFile file)throws Exception{
+
     response.setCharacterEncoding("utf-8");
     response.setContentType("text/html;charset=utf-8");
     if(StringUtils.isEmpty(token)|| !"new1292861831".equals(token)){
-        response.getWriter().write("对不起，密令不正确或为空！");
-        return;
+        return Retjson.fail("对不起，密令不正确或为空！");
     }
 
-    System.out.println("上传路径为"+uploadPath);
+    System.out.println("上传路径为"+resourcePathUtil.getRootPath());
 
     if(StringUtils.isEmpty(version.getVersionNum())){
-    response.getWriter().write("对不起，版本号为空！");
-    return;
+        return Retjson.fail("对不起，版本号为空！");
     }
     Map map = checkVersion(version.getVersionNum());
     if(!(Boolean) map.get("compareResult")){
-        response.getWriter().write("对不起，版本不得低于或等于上次版本号，旧版本号为"+map.get("oldVersion"));
-        return;
+        return Retjson.fail("对不起，版本不得低于或等于上次版本号，旧版本号为"+map.get("oldVersion"));
     }
 
 
     if(file==null){
-        response.getWriter().write("对不起，文件为空！");
-        return;
+        return Retjson.fail("对不起，文件为空！");
     }
     if(StringUtils.isEmpty(version.getUpdateMessage())){
-        response.getWriter().write("对不起，升级信息必须填写！");
-        return;
+        return Retjson.fail("对不起，升级信息必须填写！");
     }
     if(StringUtils.isEmpty(version.getForceUpdate())){
-        response.getWriter().write("对不起，强制升级选项不能为空！");
-        return;
+        return Retjson.fail("对不起，强制升级选项不能为空！");
     }
     long size = file.getSize();
-    if(StringUtils.isEmpty(uploadPath)){
-        response.getWriter().write("系统异常，请稍后重试！");
-        return;
+    if(StringUtils.isEmpty(resourcePathUtil.getRootPath())){
+        return Retjson.fail("系统异常，请稍后重试！");
     }
     try {
-        File uploadFile = new File(uploadPath + "update.apk");
+        File uploadFile = new File(resourcePathUtil.getRootPath() + "update.apk");
         if (uploadFile.exists()) {
             uploadFile.delete();
             uploadFile.createNewFile();
         }
+        if(!uploadFile.getParentFile().exists()){
+           if(!uploadFile.getParentFile().mkdirs()){
+               return Retjson.fail("系统异常，上传失败，系统未创建相关路径，请稍后重试！");
+            }
+        }
         file.transferTo(uploadFile);
         if(!(uploadFile.length()==size)){
-            response.getWriter().write("<h1>系统异常，上传失败，请稍后重试！</h1>");
-            return;
+            return Retjson.fail("系统异常，上传失败，请稍后重试！");
 
         }
     }catch(Exception e){
-    response.getWriter().write("<h1>系统异常，上传失败，请稍后重试！</h1>");
-    return;
+    return Retjson.fail("系统异常，上传失败，请稍后重试！");
     }
     version.setId(UUIDUtil.getUUID());
     version.setIslatest("1");
@@ -102,11 +109,10 @@ private String downLoadFileUril;
        retjson = versionService.insertVersion(version);
     }
     if(!retjson.getStatus().equals("success")){
-        response.getWriter().write("<h1>上传失败，稍后重试！</h1>");
-        return;
+        response.getWriter().write("<h1></h1>");
+        return Retjson.fail("上传失败，稍后重试！");
     }
-    response.getWriter().write("<h1>上传成功！！</h1>");
-
+    return new Retjson().setMsg("上传成功！！");
 }
 
     private Map checkVersion(String versionNum) {
@@ -115,7 +121,7 @@ private String downLoadFileUril;
 
     @RequestMapping("/getUpdateFile")
     public void downFile(HttpServletResponse response)throws Exception{
-    File file = new File(uploadPath + "update.apk");
+    File file = new File(resourcePathUtil.getRootPath() + "update.apk");
     if(!file.exists()){
         response.getWriter().write("<h1>文件不存在！</h1>");
         return;

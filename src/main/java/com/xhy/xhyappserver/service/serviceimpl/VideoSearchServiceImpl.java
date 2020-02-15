@@ -12,6 +12,10 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +29,7 @@ import java.util.Map;
 
 @Service
 public class VideoSearchServiceImpl implements VideoSearchService {
+    private String playSourceServiceUrl="https://www.qsptv.com";
     @Autowired
     GetUrlService getUrlService;
     @Override
@@ -33,7 +38,7 @@ public class VideoSearchServiceImpl implements VideoSearchService {
         Map<String,String> header=new HashMap<>();
         header.put("user-agent","Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36");
         header.put("x-requested-with","XMLHttpRequest");
-        String contentStr=getUrlService.postResult("http://www.qsptv.net/index.php?s=search-index-wd-"+word+"-sid-1-p-"+page,null,header,null);
+        String contentStr=getUrlService.postResult("https://www.qsptv.net/index.php?s=search-index-wd-"+word+"-sid-1-p-"+page,null,header,null);
         if(StringUtils.isEmpty(contentStr)){
             return new ResJson<List,String>().setStatus("fail").setData("对不起，服务器数据处理失败，稍后再试，如多次错误，请尽快通知管理员处理。");
         }
@@ -50,6 +55,17 @@ public class VideoSearchServiceImpl implements VideoSearchService {
             }
 
         }
+        int countPage = 1;
+        Elements select = parse.select("span.num");
+        Element element = select.get(0);
+        if(element!=null) {
+            String text = element.text();
+            if (text != null && !text.equals("") && text.matches("^[\\d]+/[\\d]+")) {
+                String[] split = text.split("/");
+                String countNumberStr = split[1];
+                countPage = Integer.parseInt(countNumberStr);
+            }
+        }
         Element content = parse.getElementById("content");
         Elements elementsByClass = content.getElementsByClass("video-pic");
         List<HashMap<String,Object>> videoList=new ArrayList<>();
@@ -62,13 +78,13 @@ public class VideoSearchServiceImpl implements VideoSearchService {
             videoMap.put("title",title);
             videoMap.put("videourl",href);
             videoMap.put("picuri",imgPath);
-            videoMap.put("duration","后续提供");
-            videoMap.put("viewscount","后续提供");
-            videoMap.put("addTime","后续提供");
+            videoMap.put("duration","无");
+            videoMap.put("viewscount","无");
+            videoMap.put("addTime","无");
             videoList.add(videoMap);
             System.out.println(title+href+imgPath);
         }
-        return new ResJson<List,String>().setPageList(videoList).setCount(countNumber);
+        return new ResJson<List,String>().setPageList(videoList).setCount(countNumber).setCountPage(countPage);
 
 
     }
@@ -114,9 +130,23 @@ public class VideoSearchServiceImpl implements VideoSearchService {
      */
     @Override
     public String getVideoPlayUrl(String videoHref) {
-        String result = getUrlService.getResult("https://www.qsptv.com" +videoHref);
+        String result = getUrlService.getResult( playSourceServiceUrl+videoHref);
         Document parse = Jsoup.parse(result);
-        Elements scriptParent = parse.select("#zanpiancms_player>.embed-responsive");
+        Element script=parse.select("#zanpiancms_player>.embed-responsive>script").first();
+        String jsStr="function getUrl(){"+script.html()+"return zanpiancms_player['url'];}";
+        try {
+            ScriptEngineManager scriptEngineManager=new ScriptEngineManager();
+            ScriptEngine se = scriptEngineManager.getEngineByName("js");
+            se.eval(jsStr);
+            Invocable inv2 = (Invocable) se;
+            String playUrl=(String)inv2.invokeFunction("getUrl");
+           return playUrl;
+        }catch (Exception e){
+            e.printStackTrace();
+            return "";
+        }
+
+       /* Elements scriptParent = parse.select("#zanpiancms_player>.embed-responsive");
         Elements script = scriptParent.select("script");
         Element element = script.get(0);
         String scriptText = element.childNode(0).attr("data");
@@ -130,7 +160,6 @@ public class VideoSearchServiceImpl implements VideoSearchService {
 
 
         String url = (String)parse1.get("url");
-        url=apiurl+url;
-        return url;
+        url=apiurl+url;*/
     }
 }

@@ -7,12 +7,13 @@ import com.xhy.xhyappserver.util.Retjson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
 
 @Service
 public class VersionServiceImpl implements VersionService {
-    @Autowired
+    @Resource
     VersionMapper versionMapper;
     @Override
     public Version getLatestVersion() {
